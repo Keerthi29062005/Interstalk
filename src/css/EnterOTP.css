@@ -1,0 +1,49 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centers horizontally */
+    align-items: center; /* Centers vertically */
+    height: 100vh; /* Full viewport height */
+    margin: 0; /* Removes default body margin */
+}
+
+.enterotp{
+    background-color: rgb(72, 71, 71);
+    position: relative; /* Keeps .login as the reference container */
+    width: 30vw;
+    height:auto;
+    padding: 5vh;
+    border-radius: 20px;
+    margin-top: 20px;
+    display: flex; /* Flexbox layout for children */
+    flex-direction: column;
+    justify-content: center; /* Centers items vertically */
+    align-items: center;
+}
+
+.otpsubmitbtn{
+    border-width: 0px;
+    border-radius: 4px;
+    padding: 10px;
+   width: 20vw;
+    background-color: rgb(49, 187, 218);
+    position: relative;
+    left:10%;
+}
+.otpsubmitbtn:hover{
+    background-color: rgb(1, 202, 248);
+}
+.otpinput{
+    display:flex;
+    margin: 30px 0 36px;
+}
+.otpinput input{
+    width:3vw;
+    height: 6vh;
+    margin: 0 8px;
+    font-size: 4vh;
+    text-align: center;
+}
+.otpinput input::-webkit-inner-spin-button{
+    display: none;
+}

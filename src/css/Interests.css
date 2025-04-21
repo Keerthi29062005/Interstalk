@@ -1,0 +1,94 @@
+/* General Styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden; /* Prevent scrolling */
+}
+
+.navbar_div {
+  margin-top: 100px;
+  width: 1500px;
+}
+
+/* Central Title Styling */
+.interest-title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2.5rem; /* Slightly larger font for emphasis */
+  font-weight: bold;
+  text-align: center;
+  z-index: 1;
+}
+
+/* Pentagon Container and Items */
+.pentagon-container {
+  position: relative;
+  width: 100%;
+  height: 500px; /* Adjust as needed */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pentagon-item {
+  position: absolute;
+}
+
+/* Adjusted Positions for Pentagon Items */
+.pentagon-container .pentagon-item:nth-child(1) {
+  top: 25%; /* Top-center */
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.pentagon-container .pentagon-item:nth-child(2) {
+  top: 50%; /* Mid-left */
+  left: 30%;
+}
+
+.pentagon-container .pentagon-item:nth-child(3) {
+  top: 50%; /* Mid-right */
+  left: 70%;
+}
+
+.pentagon-container .pentagon-item:nth-child(4) {
+  top: 75%; /* Bottom-left */
+  left: 40%;
+}
+
+.pentagon-container .pentagon-item:nth-child(5) {
+  top: 75%; /* Bottom-right */
+  left: 60%;
+}
+
+/* Form Actions */
+.form-actions {
+  position: absolute;
+  top: 90%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  margin: 0;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Footer */
+.user_footer {
+  flex: 0 0 auto;
+}

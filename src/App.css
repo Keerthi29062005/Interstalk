@@ -1,0 +1,140 @@
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+
+.App-header {
+  background-color: #282c34;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.login {
+  background-color: rgb(72, 71, 71);
+  position: relative; /* Keeps .login as the reference container */
+  width: 500px;
+  flex:1;
+  height: 600px;
+  border-radius: 20px;
+  margin-top: 20px;
+  display: flex; /* Flexbox layout for children */
+  flex-direction: column;
+ 
+}
+
+.loginheading {
+  color: white; /* Optional: Text color for contrast */
+  font-size: 40px; /* Adjust heading size */
+  margin-bottom: 20px; /* Space below the heading */
+  text-align: center; /* Center the heading */
+  margin-top:40px;
+}
+
+.form {
+  display: flex; /* Flexbox layout for form */
+  flex-direction: column; /* Stack form elements vertically */
+  align-items: center; /* Center elements horizontally */
+  width: 100%; /* Full width of the .login container */
+  margin-top: 10px; /* Space between heading and form */
+}
+
+.rno{
+  position: relative;
+  margin-top: 100px;
+}
+.email{
+  margin-bottom: 10%;
+  margin-top:100px;
+  position: relative;
+}
+.loginbtn{
+position: relative;
+top:20%;
+border-radius: 2px;
+border-width: 0;
+padding: 3%;
+padding-left: 12%;
+padding-right: 12%;
+}
+.forgot-password {
+  color: rgb(15, 134, 238); /* Make it look like a link */
+  text-decoration: underline; /* Underline text */
+  cursor: pointer; /* Change cursor to a hand pointer */
+  font-size: 14px; /* Adjust font size if needed */
+  margin: 10px 0; /* Add some spacing around the text */
+}
+
+.forgot-password:hover {
+  color: darkblue; /* Change color on hover for interactivity */
+  text-decoration: none; /* Remove underline on hover (optional) */}
+/* Body font - Clean, modern, and readable font */
+body {
+  font-family: 'Playfair Display', serif; /* Elegant and classic serif font */
+}
+
+/* Navbar customizations */
+.navbar {
+  z-index: 1000; /* Ensures navbar appears above other elements */
+  position: relative; /* Needed for z-index to work */
+  position: fixed; /* Makes it stay at the top */
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+
+.navbar-brand {
+  font-size: 1.8rem; /* Larger font for brand */
+  font-weight: bold;
+}
+
+.navbar-nav .nav-link {
+  font-size: 1.1rem; /* Slightly larger font for links */
+  font-weight: 500; /* Medium weight for a polished feel */
+  transition: all 0.3s ease; /* Smooth hover transition */
+}
+
+.navbar-nav .nav-link:hover {
+  color: #f1f1f1; /* Light color on hover */
+  text-decoration: underline; /* Underline effect for hover */
+}
+
+.navbar-toggler-icon {
+  background-color: white; /* White color for the hamburger icon */
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .login {
+    width: 90%; /* Scale down for smaller screens */
+    height: auto; /* Adjust height */
+  }
+}
+
+.container {
+  display: flex;
+  flex-wrap: wrap; /* Ensure elements wrap to the next line if they don't fit */
+  justify-content: center; /* Center content on smaller screens */
+  align-items: center;
+  width: 100%; /* Make sure it doesn’t exceed the screen width */
+  padding: 20px; /* Adjust padding */
+}

@@ -1,0 +1,42 @@
+.carousel-image {
+  width: 100%; /* Full width of the container */
+  height: 600px; /* Medium height */
+  object-fit: cover; /* Ensures proportional scaling and cropping */
+  padding: 0; /* Removed padding to prevent unexpected gaps */
+}
+
+@media (max-width: 768px) {
+  .carousel-image {
+    height: 300px; /* Adjust height for smaller screens */
+  }
+}
+
+.description-title {
+  font-family: 'Poppins', sans-serif; /* Use a modern font */
+  font-size: 2rem; /* Default size */
+  color: #2c3e50; /* Darker blue */
+  margin-bottom: 15px;
+  text-align: center; /* Center-align for better presentation */
+}
+
+@media (max-width: 768px) {
+  .description-title {
+    font-size: 1.5rem; /* Smaller font size for smaller screens */
+  }
+}
+
+.description-text {
+  font-family: 'Roboto', sans-serif; /* Clean, readable font */
+  font-size: 1.2rem; /* Default size */
+  line-height: 1.6; /* Comfortable line spacing */
+  color: #34495e; /* Subtle gray-blue for contrast */
+  margin-bottom: 10px;
+  text-align: center; /* Center-align text for readability */
+  padding: 0 20px; /* Add padding for better spacing */
+}
+
+@media (max-width: 768px) {
+  .description-text {
+    font-size: 1rem; /* Smaller font size for smaller screens */
+  }
+}
