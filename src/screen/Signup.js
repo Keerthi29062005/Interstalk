@@ -54,7 +54,8 @@ export default function Signup() {
 
       if (response.ok && json.success) {
         setSuccess(true);
-        navigate('/Login');
+        localStorage.setItem("rollNo", credentials.rno);
+        navigate('/interests');
       } else {
         alert('Signup failed: ' + (json.message || 'Unknown error occurred.'));
       }

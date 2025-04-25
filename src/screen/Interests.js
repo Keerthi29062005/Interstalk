@@ -4,138 +4,170 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../css/Interests.css';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Navbaruser from '../components/Navbaruser';
 import Footer from '../components/Footer';
 
-export default function InterestsForm() {
-  const { id } = useParams(); // Extract roll number from URL
-  const navigate = useNavigate(); // Navigation hook for redirection
+// Map each interest to a numeric group code:
+const GROUP_CODES = {
+  Sports: { Cricket: 0, Football: 1, Kabaddi: 2 },
+  Movies: { Hollywood: 10, Bollywood: 11, Tollywood: 12 },
+  Music: { Rock: 20, Classical: 21, Melody: 22 },
+  Technology: { 'AI & ML': 30, Robotics: 31, Coding: 32 },
+  Binge_watch: { 'Popular Series': 40, Anime: 41, 'Netflix Originals': 42 },
+};
 
+export default function InterestsForm() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  // Initialize state to match schema
   const [selectedInterests, setSelectedInterests] = useState({
-    Roll_no: id, // Initialize Roll_no with the extracted id
-    sports: '',
-    movies: '',
-    music: '',
-    technology: '',
-    bingeWatch: '',
-    group_assigned:0
+    Roll_no: id,
+    Sports: '',
+    Movies: '',
+    Music: '',
+    Technology: '',
+    Binge_watch: '',
+    group_assigned: 0,
   });
 
-  // Handle selection of an interest
-  const handleSelect = (category, interest) => {
-    setSelectedInterests((prevState) => ({
-      ...prevState,
-      [category]: interest
+  // When selecting an interest, also assign its numeric code
+  const handleSelect = (categoryKey, value) => {
+    const code = GROUP_CODES[categoryKey][value];
+    setSelectedInterests(prev => ({
+      ...prev,
+      [categoryKey]: value,
+      group_assigned: code,
     }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission behavior
-    console.log(selectedInterests);
+    e.preventDefault(); // <-- Important to prevent full page reload
+  
+    const rollNo = localStorage.getItem("rollNo") || selectedInterests.Roll_no;
+  
+    if (!rollNo) {
+      console.error("❌ Roll number is missing!");
+      return;
+    }
+  
+    const payload = {
+      Roll_no: rollNo,
+      Sports: selectedInterests.Sports,
+      Movies: selectedInterests.Movies,
+      Music: selectedInterests.Music,
+      Technology: selectedInterests.Technology,
+      Binge_watch: selectedInterests.Binge_watch,
+      group_assigned: selectedInterests.group_assigned,
+    };
+  
+    console.log("📦 Payload being sent:", payload);
+  
     try {
-      const response = await fetch(`http://localhost:5000/api/${id}/interests`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(selectedInterests)
+      const response = await fetch("http://localhost:5000/api/interestsgrp/addinterests", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
       });
-
-      const json = await response.json();
-      console.log(json);
-
-      if (json.success) {
-        alert('Interests submitted successfully!');
-        navigate(`/${id}/community`);
+  
+      const data = await response.json();
+      if (response.ok) {
+        console.log("✅ Interests submitted:", data);
+        navigate('/Login');
       } else {
-        alert('Submission failed: ' + json.message);
+        console.error("🚨 Submission failed:", data.message);
       }
-    } catch (error) {
-      console.error('Error submitting interests:', error);
-      alert('Submission failed. Please try again later.');
+    } catch (err) {
+      console.error("❌ Fetch error:", err);
     }
   };
-
   return (
     <div>
-      <div className="navbar_div">
-        <Navbaruser />
-      </div>
-      <div>
+      <div className="interests-header">
         <h2>FILL YOUR INTERESTS IN THE DROPDOWN MENU BELOW</h2>
       </div>
       <form onSubmit={handleSubmit}>
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="pentagon-container">
-          {/* Central Interest Title */}
           <div className="interest-title">Interests</div>
 
-          {/* Pentagon Items */}
+          {/* Sports */}
           <Dropdown className="pentagon-item" style={{ top: '10%', left: '50%' }}>
             <Dropdown.Toggle variant="secondary" id="dropdown-sports">
-              {selectedInterests.sports || 'Sports'}
+              {selectedInterests.Sports || 'Sports'}
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Dropdown.Item onClick={() => handleSelect('sports', 'Cricket')}>Cricket</Dropdown.Item>
-              <Dropdown.Item onClick={() => handleSelect('sports', 'Football')}>Football</Dropdown.Item>
-              <Dropdown.Item onClick={() => handleSelect('sports', 'Kabaddi')}>Kabaddi</Dropdown.Item>
+              {Object.keys(GROUP_CODES.Sports).map(item => (
+                <Dropdown.Item key={item} onClick={() => handleSelect('Sports', item)}>
+                  {item}
+                </Dropdown.Item>
+              ))}
             </Dropdown.Menu>
           </Dropdown>
 
+          {/* Movies */}
           <Dropdown className="pentagon-item" style={{ top: '40%', left: '20%' }}>
             <Dropdown.Toggle variant="secondary" id="dropdown-movies">
-              {selectedInterests.movies || 'Movies'}
+              {selectedInterests.Movies || 'Movies'}
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Dropdown.Item onClick={() => handleSelect('movies', 'Hollywood')}>Hollywood</Dropdown.Item>
-              <Dropdown.Item onClick={() => handleSelect('movies', 'Bollywood')}>Bollywood</Dropdown.Item>
-              <Dropdown.Item onClick={() => handleSelect('movies', 'Tollywood')}>Tollywood</Dropdown.Item>
+              {Object.keys(GROUP_CODES.Movies).map(item => (
+                <Dropdown.Item key={item} onClick={() => handleSelect('Movies', item)}>
+                  {item}
+                </Dropdown.Item>
+              ))}
             </Dropdown.Menu>
           </Dropdown>
 
+          {/* Technology */}
           <Dropdown className="pentagon-item" style={{ top: '40%', left: '80%' }}>
             <Dropdown.Toggle variant="secondary" id="dropdown-technology">
-              {selectedInterests.technology || 'Technology'}
+              {selectedInterests.Technology || 'Technology'}
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Dropdown.Item onClick={() => handleSelect('technology', 'AI & ML')}>AI & ML</Dropdown.Item>
-              <Dropdown.Item onClick={() => handleSelect('technology', 'Robotics')}>Robotics</Dropdown.Item>
-              <Dropdown.Item onClick={() => handleSelect('technology', 'Coding')}>Coding</Dropdown.Item>
+              {Object.keys(GROUP_CODES.Technology).map(item => (
+                <Dropdown.Item key={item} onClick={() => handleSelect('Technology', item)}>
+                  {item}
+                </Dropdown.Item>
+              ))}
             </Dropdown.Menu>
           </Dropdown>
 
+          {/* Music */}
           <Dropdown className="pentagon-item" style={{ top: '70%', left: '30%' }}>
             <Dropdown.Toggle variant="secondary" id="dropdown-music">
-              {selectedInterests.music || 'Music'}
+              {selectedInterests.Music || 'Music'}
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Dropdown.Item onClick={() => handleSelect('music', 'Rock')}>Rock</Dropdown.Item>
-              <Dropdown.Item onClick={() => handleSelect('music', 'Classical')}>Classical</Dropdown.Item>
-              <Dropdown.Item onClick={() => handleSelect('music', 'Melody')}>Melody</Dropdown.Item>
+              {Object.keys(GROUP_CODES.Music).map(item => (
+                <Dropdown.Item key={item} onClick={() => handleSelect('Music', item)}>
+                  {item}
+                </Dropdown.Item>
+              ))}
             </Dropdown.Menu>
           </Dropdown>
 
+          {/* Binge & Watch */}
           <Dropdown className="pentagon-item" style={{ top: '70%', left: '70%' }}>
             <Dropdown.Toggle variant="secondary" id="dropdown-bingeWatch">
-              {selectedInterests.bingeWatch || 'Binge & Watch'}
+              {selectedInterests.Binge_watch || 'Binge & Watch'}
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Dropdown.Item onClick={() => handleSelect('bingeWatch', 'Popular Series')}>Popular Series</Dropdown.Item>
-              <Dropdown.Item onClick={() => handleSelect('bingeWatch', 'Anime')}>Anime</Dropdown.Item>
-              <Dropdown.Item onClick={() => handleSelect('bingeWatch', 'Netflix Originals')}>Netflix Originals</Dropdown.Item>
+              {Object.keys(GROUP_CODES.Binge_watch).map(item => (
+                <Dropdown.Item key={item} onClick={() => handleSelect('Binge_watch', item)}>
+                  {item}
+                </Dropdown.Item>
+              ))}
             </Dropdown.Menu>
           </Dropdown>
         </motion.div>
 
-        {/* Submit Button */}
         <div className="form-actions">
-          <Button variant="primary" type="submit">
-            Submit
-          </Button>
+          <Button variant="primary" type="submit">Submit</Button>
         </div>
       </form>
 
-      <div className="user_footer">
-        <Footer />
-      </div>
+      <Footer />
     </div>
   );
 }

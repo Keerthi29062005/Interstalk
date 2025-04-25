@@ -28,7 +28,7 @@ import Profile from './Profile';
 import '../css/ChatBox.css';
 import Chattingimg from '../images/chatting3.png';
 
-const drawerWidth = 600;
+const drawerWidth = 300;
 
 const MainContent = styled(Box)(({ theme, drawerOpen }) => ({
   flexGrow: 1,
@@ -91,7 +91,60 @@ export default function EnhancedNavBar() {
   const [arrivalmsg, setarrivalmsg] = useState(null);
   const location = useLocation();
   const { Roll_no, Name, id } = location.state || {};
+  const [communities, setCommunities] = useState([]);
+  const [selectedCommunity, setSelectedCommunity] = useState({ name: '', category: '' });
+  const [communityMembers, setCommunityMembers] = useState([]);
 
+  const fetchCommunities = async () => {
+    try { console.log(Roll_no);
+      const response = await fetch('http://localhost:5000/api/group/getcommunities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: Roll_no }),
+      });
+      const json = await response.json();
+      if (json.success) {
+        setCommunities(json.communities);
+      }
+    } catch (err) {
+      console.error("Error fetching communities", err);
+    }
+  };
+  
+  useEffect(() => {
+    if (drawerContent === 'Community') {
+      fetchCommunities();
+    }
+  }, [drawerContent]);
+  
+  const handleCommunityClick = async (community) => {
+    setSelectedCommunity(community);
+  
+    try {
+      const response = await fetch('http://localhost:5000/api/group/getmembers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          category: community.category, // or use 'interest' if that's your field name
+          value: community.name,
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (data.success) {
+        setCommunityMembers(data.members); // Add a new state to hold these
+      } else {
+        console.error("Failed to fetch members:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching members:", error);
+    }
+  };
+
+  
   // Fetch users when the Chats drawer is active
   useEffect(() => {
     if (drawerContent === 'Chats' || drawerContent === 'Community') {
@@ -137,13 +190,12 @@ export default function EnhancedNavBar() {
     }
   }, [selectedFriend.id]);
 // Chat.js (inside your component)
-
-const getGroupMsgs = async () => {
+const getGroupMsgs = async (groupName) => {
   try {
     const response = await fetch("http://localhost:5000/api/group/getgroupmsg", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sender: id }),  // so the server can mark fromSelf
+      body: JSON.stringify({ sender: id , groupId : groupName}),  // so the server can mark fromSelf
     });
     const json = await response.json();
     if (json.success) {
@@ -157,14 +209,15 @@ const getGroupMsgs = async () => {
 };
 
 useEffect(() => {
-  if (drawerContent === 'Community') {
-    getGroupMsgs();
+  if (drawerContent === 'Community' && selectedCommunity.name) {
+    getGroupMsgs(selectedCommunity.name);
   }
-}, [drawerContent]);
+}, [drawerContent, selectedCommunity]);
 
 // Chat.js (inside your component)
 
 const sendGroupMsg = async (e) => {
+
   e.preventDefault();
   try {
     const response = await fetch("http://localhost:5000/api/group/addgroupmsg", {
@@ -173,14 +226,15 @@ const sendGroupMsg = async (e) => {
       body: JSON.stringify({
         sender: id,       // your current user’s ID
         message: message, // the text
+        groupId: selectedCommunity.name
       }),
     });
     const json = await response.json();
     if (response.ok && json.success) {
       // emit via socket.io so everyone in "community" gets it
-      socket.emit("send-group-msg", { sender: id, message });
+      socket.emit("send-group-msg", { sender: id,senderName: Name, message , groupName: selectedCommunity.name  });
       // optimistically append it
-      setallMessages(prev => [...prev, { fromSelf: true, message }]);
+      setallMessages(prev => [...prev, { fromSelf: true, message, senderName: Name }]);
       setMessage('');
     } else {
       console.error("Group msg send failed:", json.message);
@@ -189,16 +243,22 @@ const sendGroupMsg = async (e) => {
     console.error("Error sending group msg:", error);
   }
 };
-useEffect(() => {
-  socket.on("group-msg-receive", (data) => {
-    setallMessages((prev) => [...prev, {
-      fromSelf: false,
-      message: data.message,
-    }]);
-  });
 
-  return () => socket.off("group-msg-receive");
-}, []);
+useEffect(() => {
+  const handleGroupMsgReceive = (data) => {
+    if (data.groupName === selectedCommunity.name) {
+      setallMessages((prev) => [...prev, {
+        fromSelf: false,
+        message: data.message,
+        senderName: data.senderName
+      }]);
+    }
+  };
+
+  socket.on("group-msg-receive", handleGroupMsgReceive);
+
+  return () => socket.off("group-msg-receive", handleGroupMsgReceive);
+}, [selectedCommunity.name]);
 
   const getallMsgs = async (selectedFriend) => {
     try {
@@ -275,24 +335,46 @@ useEffect(() => {
       return <Profile />;
     }
     if (drawerContent === 'Community') {
-      // You can still render Convo here if Community-specific UI is desired.
       return (
-        <div>
-          <h3>My Community</h3>
-          <List>
-              {users.map((user, index) => (
-                <ListItem
-                  button
-                  key={index}
-                  
-                >
-                  <ListItemText primary={user.Name} />
-                </ListItem>
-              ))}
-            </List>
-        </div>
+        <>
+          <h3 style={{ margin: '20px' }}>My Communities</h3>
+          {communities.length === 0 ? (
+            <p style={{ marginLeft: '20px' }}>Loading communities...</p>
+          ) : (
+            <>
+              <List>
+                {communities.map((community, index) => (
+                  <ListItem
+                    button
+                    key={index}
+                    selected={selectedCommunity?.name === community.name}
+                    onClick={() => handleCommunityClick(community)}
+                  >
+                    <ListItemText
+                      primary={community.name}
+                      secondary={community.category}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+    
+              {selectedCommunity && communityMembers.length > 0 && (
+                <div style={{ marginLeft: '20px', marginTop: '20px' }}>
+                  <h4>Members in {selectedCommunity.name}:</h4>
+                  <ul>
+                    {communityMembers.map((member, index) => (
+                      <li key={index}>{member.Name}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </>
+          )}
+        </>
       );
     }
+    
+    
     if (drawerContent === 'Chats') {
       return (
         <>
@@ -330,14 +412,14 @@ useEffect(() => {
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, height: '13vh' }}>
         <Toolbar>
           <IconButton color="inherit" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2 }}>
-            <MenuIcon sx={{ fontSize: 40 }} />
+            <MenuIcon sx={{ fontSize: '4vh' }} />
           </IconButton>
-          <Typography variant="h5" component="div" sx={{ display: { xs: 'none', sm: 'block' }, fontSize: '30px' }}>
+          <Typography variant="h5" component="div" sx={{ display: { xs: 'none', sm: 'block' }, fontSize: '4vh' }}>
             Interstalk
           </Typography>
-          <Search>
+          <Search sx={{marginTop:'2vh', marginBottom:'2vh',length: '4vh'}}>
             <SearchIconWrapper>
-              <SearchIcon sx={{ fontSize: 40 }} />
+              <SearchIcon sx={{ fontSize: '5vh' }} />
             </SearchIconWrapper>
             <StyledInputBase placeholder="Search…" inputProps={{ 'aria-label': 'search' }} sx={{ fontSize: '20px', width: '30vw' }} />
           </Search>
@@ -366,7 +448,7 @@ useEffect(() => {
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
-            marginTop: '150px',
+            marginTop: '13vh',
           },
         }}
         variant="persistent"
@@ -375,10 +457,19 @@ useEffect(() => {
       >
         {renderDrawerContent()}
       </Drawer>
-      <MainContent drawerOpen={drawerOpen} sx={{ marginTop: '150px', position: 'relative' }}>
+      <MainContent drawerOpen={drawerOpen} sx={{  position: 'relative', marginTop:'13vh' }}>
   {/* If drawer is not open, show the landing image */}
-  {(!drawerOpen) || (drawerContent === 'Chats' && !selectedFriend.Name) ? (
-    <img src={Chattingimg} alt="Chatting" height="900vh" width="auto" />
+  {(!drawerOpen) || (drawerContent === 'Chats' && !selectedFriend.Name) || (drawerContent === 'Community' && !selectedCommunity.name)  ? (
+    <img
+  src={Chattingimg}
+  alt="Chatting"
+  style={{
+    marginTop: '150px',    // whatever downward offset you need
+    height: '400px',
+    width: 'auto'
+  }}
+/>
+
   ) : (
     // If drawer is open, decide what to show:
     // For Chats mode, if a friend is selected, show personal chat; otherwise show community chat.
@@ -402,12 +493,12 @@ useEffect(() => {
             </div>
           ))}
         </div>
-        <div className="ChatBoxtype" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="ChatBoxtype" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
           <EmojiEmotionsOutlinedIcon style={{ fontSize: 50, marginLeft: '10px' }} onClick={() => setShowPicker(val => !val)} />
           {showPicker && (
             <div style={{
               position: 'absolute',
-              bottom: '80px',
+              bottom: '10px',
               left: '10px',
               zIndex: 1000,
               width: '400px',
@@ -435,7 +526,10 @@ useEffect(() => {
       // In all other cases (Community mode OR Chat mode without a friend selected), show community (group) chat.
       <>
         <div className="ChatBoxName" style={{ display: 'flex', alignItems: 'center' }}>
-          <h1 style={{ marginLeft: '20px' }}>Community Chat</h1>
+        <Avatar alt="Profile Picture" sx={{ width: '80px', height: '80px', fontSize: 50, marginLeft: '20px' }}>
+            {selectedCommunity.name.charAt(0).toUpperCase()}
+          </Avatar>
+        <h1 style={{ marginLeft: '20px' }}>{selectedCommunity.name}</h1>
           <MoreVertIcon style={{ fontSize: 50, marginLeft: 'auto' }} />
         </div>
         <div className="ChatBoxchats">
@@ -443,6 +537,9 @@ useEffect(() => {
             <div key={index}>
               <div className={`message ${message.fromSelf ? "sended" : "received"}`}>
                 <div className='contentchat'>
+                <div className="sender-name">
+            { message.fromSelf ? "You" : message.senderName }
+          </div>
                   <p>{message.message}</p>
                 </div>
               </div>

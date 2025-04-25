@@ -13,6 +13,7 @@ app.use(express.json());
 app.use('/api', require("./Routes/CreateUser"));
 app.use('/api/msg', require("./Routes/messageroute"));
 app.use('/api/group', require('./Routes/grpmsg'));
+app.use('/api/interestsgrp', require('./Routes/addinterest'));
 const server = app.listen(port, () => {
     console.log('Server is listening on port', port);
 });

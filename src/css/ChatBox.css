@@ -56,6 +56,11 @@ width:100%;
   word-wrap: break-word; /* Handle long words */
     line-height: 1.5;
   }
+  .sender-name{
+    font-size: 20px;
+    border-radius: 10px;
+    color: rgb(7, 133, 244);
+  }
   .message.sended .contentchat {
     background-color: #daf1da; /* Light green for sent messages */
     align-self: flex-end;
@@ -67,19 +72,32 @@ width:100%;
     align-self: flex-start;
        margin-left: 80px;
   }
-.ChatBoxtype{
-    background-color:  rgb(255, 255, 255);
-    height:10%;
-    width:100%;
-    /* margin-left: 600px; */
-}
-.ChatBoxtypein{
-    background-color:  rgb(229, 229, 228);
-    height:75%;
-    width:40%;
-    border-radius: 20px;
-    font-size: 30px;
+  .ChatBoxtype {
+    display: flex;
+    margin-top: 2.5vh;
+    height: 8vh;
+    width: auto;
+    align-items: center;
+    padding: 0.5rem;
+    background-color: rgb(255, 255, 255);
+  }
+  
+  .ChatBoxtypein {
+    flex: 1;                   /* Fill remaining width */
+    min-width: 0;              /* Prevent overflow */
+    height: 3rem;              /* Use rem for consistent sizing */
+    border-radius: 1.25rem;    /* 20px equivalent in rem (approx) */
+    font-size: 1rem;
+    padding: 0 1rem;
+    border: none;
+    background-color: rgb(229, 229, 228);
     color: black;
-    border-width: 0;
-    padding: 20px;
-}
+  }
+  
+  /* Emoji and icons scale with rem */
+  .ChatBoxtype svg, .ChatBoxtype .MuiSvgIcon-root {
+    font-size: 1.5rem;
+    margin: 0 0.5rem;
+  }
+  
+  

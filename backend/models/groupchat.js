@@ -11,6 +11,10 @@ const GroupMessageSchema = new Schema({
     ref: "User",
     required: true,
   },
+  groupId: {
+    type:String,
+    required: true,
+  }
 }, {
   timestamps: true,
 });
